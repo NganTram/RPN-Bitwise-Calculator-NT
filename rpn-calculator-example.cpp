@@ -15,7 +15,7 @@ using namespace std;
 
 /*
  * *** STUDENTS WILL NEED TO CHANGE INPUT_CSV_FILE PATH BELOW TO POINT TO THE rpn-input.csv FILE ***
- * This version assumes rpn-input.csv is in the same folder as this .cpp file.
+ * *** ON THEIR LAPTOP/COMPUTER ***
  */
 #define INPUT_CSV_FILE "rpn-input.csv"
 
@@ -43,94 +43,15 @@ vector<string> command_name = {"cmd_enter",       "cmd_clear", "cmd_pop", "cmd_t
 uint8_t const width = 16U;
 
 /*
- * Helper function: perform 16-bit bitwise-only addition and detect overflow
- */
-static uint16_t bitwise_add16(uint16_t x, uint16_t y, bool &overflow) {
-    overflow = false;
-    while (y != 0) {
-        uint16_t pair = static_cast<uint16_t>(x & y);
-        // Detect carry out of bit 15 before shifting
-        if (pair & 0x8000u) {
-            overflow = true;
-            return 0;
-        }
-        uint16_t carry = static_cast<uint16_t>(pair << 1);
-        x = static_cast<uint16_t>(x ^ y);
-        y = carry;
-    }
-    return x;
-}
-
-/*
- * Main RPN calculator function
+ * *** STUDENTS SHOULD WRITE CODE FOR THIS FUNCTION ***
+ * Students should create or add any data structures needed.
+ * Students should create or add any functions or classes they may need.
  */
 shared_ptr<uint16_t> rpn_calc(command const cmd, uint16_t const value = 0) {
-    // Persistent stack across multiple calls
-    static vector<uint16_t> stk;
-
-    auto top_ptr = [&]() -> shared_ptr<uint16_t> {
-        if (stk.empty()) return nullptr;
-        return make_shared<uint16_t>(stk.back());
-    };
-
-    switch (cmd) {
-        case cmd_enter: {
-            stk.push_back(static_cast<uint16_t>(value & 0xFFFFu));
-            return top_ptr();
-        }
-        case cmd_clear: {
-            stk.clear();
-            return nullptr;
-        }
-        case cmd_pop: {
-            if (stk.empty()) return nullptr;
-            stk.pop_back();
-            return top_ptr();
-        }
-        case cmd_top: {
-            return top_ptr();
-        }
-        case cmd_left_shift:
-        case cmd_right_shift:
-        case cmd_or:
-        case cmd_and:
-        case cmd_add: {
-            if (stk.size() < 2) return nullptr;
-
-            uint16_t a = stk.back();
-            uint16_t b = stk[stk.size() - 2];
-
-            if (cmd == cmd_add) {
-                bool ovf = false;
-                uint16_t sum = bitwise_add16(b, a, ovf);
-                if (ovf) return nullptr;
-                stk.pop_back();
-                stk.pop_back();
-                stk.push_back(sum);
-                return top_ptr();
-            }
-
-            uint16_t r = 0;
-            if (cmd == cmd_left_shift) {
-                uint16_t s = static_cast<uint16_t>(a & 0x0Fu);
-                r = static_cast<uint16_t>((b << s) & 0xFFFFu);
-            } else if (cmd == cmd_right_shift) {
-                uint16_t s = static_cast<uint16_t>(a & 0x0Fu);
-                r = static_cast<uint16_t>(b >> s);
-            } else if (cmd == cmd_or) {
-                r = static_cast<uint16_t>((b | a) & 0xFFFFu);
-            } else if (cmd == cmd_and) {
-                r = static_cast<uint16_t>((b & a) & 0xFFFFu);
-            }
-
-            stk.pop_back();
-            stk.pop_back();
-            stk.push_back(r);
-            return top_ptr();
-        }
-        default:
-            return nullptr;
-    }
+    // this is example code which returns a (smart shared) pointer to 16-bit value
+    uint16_t val = 0b1001100100000011;
+    shared_ptr<uint16_t> result = make_shared<uint16_t>(val);
+    return result;
 }
 
 /*
@@ -226,6 +147,7 @@ bool test() {
     unordered_map<string, command> command_map;
     init_command_map(command_map);
     header();
+
     bool success = true;
     bool all_test_pass = true;
     uint16_t pass = 0;
